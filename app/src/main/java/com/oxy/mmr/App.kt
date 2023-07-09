@@ -11,6 +11,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,6 +25,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,8 +35,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlurEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -43,7 +45,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
@@ -88,13 +89,11 @@ fun App(
     var element: SharedElement? by remember { mutableStateOf(null) }
     Box(
         modifier = Modifier
-            .drawWithContent {
-                drawContent()
+            .graphicsLayer {
                 if (element != null) {
-                    drawRect(Color.Black.copy(alpha = 0.38f))
+                    renderEffect = BlurEffect(16f, 16f)
                 }
             }
-            .padding(16.dp)
             .then(modifier)
     ) {
         Box(
@@ -120,6 +119,7 @@ fun App(
                 launcher.launch(MIME_VIDEO)
             },
             modifier = Modifier
+                .padding(16.dp)
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter)
         ) {
@@ -143,8 +143,8 @@ fun App(
         }
 
         if (element != null) {
-            val animatedOffset by animateIntOffsetAsState(actualOffset)
-            val animatedSize by animateSizeAsState(actualSize)
+            val animatedOffset by animateIntOffsetAsState(actualOffset, tween(4000))
+            val animatedSize by animateSizeAsState(actualSize, tween(4000))
             LaunchedEffect(Unit) {
                 actualOffset = IntOffset.Zero
                 actualSize = Size(
@@ -182,21 +182,23 @@ fun App(
 private fun VideoFrameLoader(
     bitmaps: List<ImageBitmap?>,
     onClick: (SharedElement) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    cellsCount: Int = 3
 ) {
     val density = LocalDensity.current.density
     val state = rememberLazyGridState()
     LazyVerticalGrid(
         state = state,
-        columns = GridCells.Fixed(3),
+        columns = GridCells.Fixed(cellsCount),
+        contentPadding = PaddingValues(4.dp),
         modifier = modifier
     ) {
         itemsIndexed(bitmaps) { index, bitmap ->
-            Card(
-                shape = RoundedCornerShape(8.dp),
-                modifier = Modifier.padding(4.dp)
-            ) {
-                if (bitmap != null) {
+            if (bitmap != null) {
+                Card(
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.padding(4.dp)
+                ) {
                     Image(
                         bitmap = bitmap,
                         contentDescription = null,
@@ -220,20 +222,34 @@ private fun VideoFrameLoader(
                                 )
                             }
                     )
-                } else {
-                    Image(
-                        painter = painterResource(R.drawable.ic_launcher_foreground),
-                        contentDescription = null,
-                        modifier = Modifier.aspectRatio(1f)
-                    )
                 }
+            } else {
+                Card(
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .fillMaxSize()
+                        .aspectRatio(1f)
+                ) {}
             }
-
+        }
+        items(bitmaps.calculatePlaceholderCount(cellsCount)) {
+            Surface(
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier
+                    .padding(4.dp)
+                    .fillMaxSize()
+                    .aspectRatio(1f),
+                color = Color.Transparent
+            ) {}
         }
     }
 }
 
-private fun Context.loadThumbs(uri: Uri?): Flow<Resource<List<ImageBitmap?>>> = flow {
+private fun Context.loadThumbs(
+    uri: Uri?,
+    totalCount: Int = 28
+): Flow<Resource<List<ImageBitmap?>>> = flow {
     emit(Resource.Loading)
     if (uri == null) {
         emit(Resource.Failure("Uri is null."))
@@ -246,11 +262,10 @@ private fun Context.loadThumbs(uri: Uri?): Flow<Resource<List<ImageBitmap?>>> = 
                 .extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toInt() ?: -1
 
             // total frame times
-            val maxFrame = 60
-            val deltaTime = duration / maxFrame * 1000
+            val deltaTime = duration / totalCount * 1000
 
             withContext(Dispatchers.IO) {
-                List(maxFrame) { i ->
+                List(totalCount) { i ->
                     retriever.getFrameAtTime(
                         (deltaTime.toLong() * i),
                         MediaMetadataRetriever.OPTION_CLOSEST_SYNC
@@ -264,6 +279,9 @@ private fun Context.loadThumbs(uri: Uri?): Flow<Resource<List<ImageBitmap?>>> = 
         emit(Resource.Failure(e.message.orEmpty()))
     }
 }
+
+private fun List<*>.calculatePlaceholderCount(cellsCount: Int): Int =
+    if (isEmpty()) 0 else (size % cellsCount) + cellsCount
 
 sealed class Resource<out T> {
     data class Success<out T>(val data: T) : Resource<T>()
