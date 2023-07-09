@@ -39,22 +39,25 @@ internal fun VideoAlbum(
         modifier = modifier
     ) {
         itemsIndexed(bitmaps) { index, nullableBitmap ->
-            VideoAlbumItem(nullableBitmap) { bitmap ->
-                val actualIndex = index - state.firstVisibleItemIndex
-                val info = state.layoutInfo.visibleItemsInfo[actualIndex]
-                onClick(
-                    Shared.of(
-                        offset = info.offset,
-                        size = with(info.size) {
-                            Size(
-                                width.toFloat() / density,
-                                height.toFloat() / density
-                            )
-                        },
-                        data = bitmap
+            VideoAlbumItem(
+                nullableBitmap = nullableBitmap,
+                onClick = { bitmap ->
+                    val actualIndex = index - state.firstVisibleItemIndex
+                    val info = state.layoutInfo.visibleItemsInfo[actualIndex]
+                    onClick(
+                        Shared.of(
+                            offset = info.offset,
+                            size = with(info.size) {
+                                Size(
+                                    width.toFloat() / density,
+                                    height.toFloat() / density
+                                )
+                            },
+                            data = bitmap
+                        )
                     )
-                )
-            }
+                }
+            )
         }
         items(bitmaps.calculatePlaceholderCount(cellsCount)) {
             VideoAlbumPlaceholder()
@@ -64,23 +67,23 @@ internal fun VideoAlbum(
 
 @Composable
 internal fun VideoAlbumItem(
-    bitmap: ImageBitmap?,
+    nullableBitmap: ImageBitmap?,
     modifier: Modifier = Modifier,
     onClick: (ImageBitmap) -> Unit,
 ) {
-    if (bitmap != null) {
+    if (nullableBitmap != null) {
         Card(
             shape = RoundedCornerShape(8.dp),
             modifier = Modifier.padding(4.dp) then modifier
         ) {
             Image(
-                bitmap = bitmap,
+                bitmap = nullableBitmap,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .aspectRatio(1f)
                     .clickable {
-                        onClick(bitmap)
+                        onClick(nullableBitmap)
                     }
             )
         }

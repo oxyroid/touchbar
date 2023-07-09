@@ -44,13 +44,9 @@ fun App(
     }
     val resource by produceState<Resource<List<ImageBitmap?>>>(
         Resource.Loading,
-        context,
         uri
     ) {
-        MediaUtils.loadThumbs(
-            context = context,
-            uri = uri
-        ).collect {
+        MediaUtils.loadThumbs(context, uri).collect {
             value = it
         }
     }
@@ -64,7 +60,7 @@ fun App(
         }
     }
 
-    var shared: Shared<ImageBitmap>? by remember { mutableStateOf(null) }
+    var element: Shared<ImageBitmap>? by remember { mutableStateOf(null) }
     Box(
         modifier = modifier
     ) {
@@ -74,7 +70,7 @@ fun App(
             VideoAlbum(
                 bitmaps = bitmaps,
                 onClick = { newElement ->
-                    shared = newElement
+                    element = newElement
                 },
                 modifier = Modifier.fillMaxSize()
             )
@@ -101,11 +97,11 @@ fun App(
             )
         }
 
-        shared?.let { innerShared ->
+        element?.let { innerShared ->
             VideoViewer(
                 shared = innerShared,
                 onClick = {
-                    shared = null
+                    element = null
                 }
             )
         }
