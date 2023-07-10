@@ -8,7 +8,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import com.oxy.mmr.wrapper.Resource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.withContext
 
 object MediaUtils {
@@ -16,14 +16,15 @@ object MediaUtils {
         context: Context,
         uri: Uri?,
         totalCount: Int = 28
-    ): Flow<Resource<List<ImageBitmap?>>> = flow {
-        emit(Resource.Loading)
+    ): Flow<Resource<List<ImageBitmap?>>> = channelFlow {
+        send(Resource.Loading)
         if (uri == null) {
-            emit(Resource.Failure("Uri is null."))
-            return@flow
+            send(Resource.Failure("Uri is null."))
+            return@channelFlow
         }
         try {
-            val bitmaps = MediaMetadataRetriever().use { retriever ->
+            var bitmaps = emptyList<ImageBitmap?>()
+            MediaMetadataRetriever().use { retriever ->
                 retriever.setDataSource(context, uri)
                 val duration = retriever
                     .extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toInt() ?: -1
@@ -31,17 +32,18 @@ object MediaUtils {
                 val deltaTime = duration / totalCount * 1000
 
                 withContext(Dispatchers.IO) {
-                    List(totalCount) { i ->
-                        retriever.getFrameAtTime(
+                    repeat(totalCount) { i ->
+                        val bitmap = retriever.getFrameAtTime(
                             (deltaTime.toLong() * i),
                             MediaMetadataRetriever.OPTION_CLOSEST_SYNC
                         )?.asImageBitmap()
+                        bitmaps = bitmaps + bitmap
+                        send(Resource.Success(bitmaps))
                     }
                 }
             }
-            emit(Resource.Success(bitmaps))
         } catch (e: Exception) {
-            emit(Resource.Failure(e.message.orEmpty()))
+            send(Resource.Failure(e.message.orEmpty()))
         }
     }
 }
