@@ -1,5 +1,6 @@
 package com.oxy.mmr.components
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,10 +15,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
@@ -25,8 +27,8 @@ import com.oxy.mmr.wrapper.Shared
 
 @Composable
 internal fun VideoAlbum(
-    bitmaps: List<ImageBitmap?>,
-    onClick: (Shared<ImageBitmap>) -> Unit,
+    bitmaps: List<Bitmap?>,
+    onClick: (Shared<Bitmap>) -> Unit,
     modifier: Modifier = Modifier,
     cellsCount: Int = 3
 ) {
@@ -67,9 +69,9 @@ internal fun VideoAlbum(
 
 @Composable
 internal fun VideoAlbumItem(
-    nullableBitmap: ImageBitmap?,
+    nullableBitmap: Bitmap?,
     modifier: Modifier = Modifier,
-    onClick: (ImageBitmap) -> Unit,
+    onClick: (Bitmap) -> Unit,
 ) {
     if (nullableBitmap != null) {
         Card(
@@ -77,7 +79,7 @@ internal fun VideoAlbumItem(
             modifier = Modifier.padding(4.dp) then modifier
         ) {
             Image(
-                bitmap = nullableBitmap,
+                bitmap = remember(nullableBitmap) { nullableBitmap.asImageBitmap() },
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier

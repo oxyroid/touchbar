@@ -1,109 +1,77 @@
 package com.oxy.mmr
 
-import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.oxy.mmr.components.VideoAlbum
-import com.oxy.mmr.components.VideoViewer
-import com.oxy.mmr.util.MediaUtils
-import com.oxy.mmr.wrapper.Resource
-import com.oxy.mmr.wrapper.Shared
+import com.oxy.mmr.feature.album.AlbumScreen
+import com.oxy.mmr.feature.touchbar.TouchBarScreen
 
-private const val MIME_VIDEO = "video/*"
+sealed class Destination {
+    object Home : Destination()
+    object Album : Destination()
+    object TouchBar : Destination()
+}
 
 @Composable
 fun App(
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
-    var uri: Uri? by remember { mutableStateOf(null) }
-    var bitmaps: List<ImageBitmap?> by remember { mutableStateOf(emptyList()) }
-    val launcher = rememberLauncherForActivityResult(
-        ActivityResultContracts.GetContent()
-    ) { newUri ->
-        uri = newUri
-    }
-    val resource by produceState<Resource<List<ImageBitmap?>>>(
-        Resource.Loading,
-        uri
-    ) {
-        MediaUtils.loadThumbs(context, uri).collect {
-            value = it
-        }
-    }
+    var destination: Destination by remember { mutableStateOf(Destination.Home) }
 
-    LaunchedEffect(resource) {
-        // thread safe
-        val safeResource = resource
-        bitmaps = when (safeResource) {
-            is Resource.Success -> safeResource.data
-            else -> emptyList()
-        }
-    }
-
-    var element: Shared<ImageBitmap>? by remember { mutableStateOf(null) }
-    Box(
-        modifier = modifier
-    ) {
-        Box(
-            modifier = Modifier.fillMaxSize()
+    Box(modifier) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            VideoAlbum(
-                bitmaps = bitmaps,
-                onClick = { newElement ->
-                    element = newElement
-                },
-                modifier = Modifier.fillMaxSize()
-            )
-            if (resource !is Resource.Success) {
-                Text(
-                    text = resource.toString(),
-                    style = MaterialTheme.typography.labelMedium,
-                    modifier = Modifier.align(Alignment.Center)
-                )
+            Button(
+                onClick = { destination = Destination.Album },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Album")
+            }
+            Button(
+                onClick = { destination = Destination.TouchBar },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "TouchBar")
             }
         }
-
-        Button(
-            onClick = {
-                launcher.launch(MIME_VIDEO)
-            },
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth()
-                .align(Alignment.BottomCenter)
+        AnimatedVisibility(
+            visible = destination == Destination.Album,
+            enter = slideInHorizontally { it },
+            exit = slideOutHorizontally { it }
         ) {
-            Text(
-                text = "PICK VIDEO"
-            )
+            AlbumScreen()
         }
+        AnimatedVisibility(
+            visible = destination == Destination.TouchBar,
+            enter = slideInHorizontally { it },
+            exit = slideOutHorizontally { it }
+        ) {
+            TouchBarScreen()
+        }
+    }
 
-        element?.let { innerShared ->
-            VideoViewer(
-                shared = innerShared,
-                onClick = {
-                    element = null
-                }
-            )
-        }
+    BackHandler(destination != Destination.Home) {
+        destination = Destination.Home
     }
 }
