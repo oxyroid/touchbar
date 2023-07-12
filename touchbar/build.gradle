@@ -18,7 +18,7 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
     }
@@ -54,7 +54,7 @@ afterEvaluate {
             release(MavenPublication) {
                 groupId = "com.github.realOxy"
                 artifactId = "touchbar"
-                version = "1.1"
+                version = "1.2"
 
                 from components.release
             }
