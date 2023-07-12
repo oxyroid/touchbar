@@ -1,4 +1,4 @@
-package com.oxy.mmr.components.touchbar
+package com.oxy.touchbar
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize

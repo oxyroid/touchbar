@@ -1,5 +1,4 @@
-package com.oxy.mmr.components.touchbar
-
+package com.oxy.touchbar
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -11,24 +10,22 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-
 @Immutable
-interface Speeder {
+internal interface Speeder {
     val speed: Float
     fun increase()
     fun decrease()
 }
 
 @Composable
-fun rememberSpeeder(
+internal fun rememberSpeeder(
     forgiveness: Long = 150,
     coroutineScope: CoroutineScope = rememberCoroutineScope()
 ): Speeder = remember(forgiveness, coroutineScope) {
     CoroutineSpeeder(forgiveness, coroutineScope)
 }
 
-
-class CoroutineSpeeder(
+private class CoroutineSpeeder(
     private val forgiveness: Long,
     coroutineScope: CoroutineScope
 ) : Speeder {

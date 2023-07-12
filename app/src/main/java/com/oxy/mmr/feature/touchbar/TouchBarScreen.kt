@@ -35,10 +35,10 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.oxy.mmr.components.TimeZone
-import com.oxy.mmr.components.touchbar.TouchBar
-import com.oxy.mmr.components.touchbar.rememberTouchBarState
 import com.oxy.mmr.util.MediaUtils
 import com.oxy.mmr.wrapper.Resource
+import com.oxy.touchbar.TouchBar
+import com.oxy.touchbar.rememberTouchBarState
 import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
@@ -126,7 +126,7 @@ internal fun TouchBarScreen(
 
         MediaUtils.recycleNullableUseless(bitmaps, newBitmaps)
         bitmaps = newBitmaps
-        touchBarState.notify(bitmaps = bitmaps)
+        // touchBarState.notify(bitmaps = bitmaps)
     }
 
     Column(

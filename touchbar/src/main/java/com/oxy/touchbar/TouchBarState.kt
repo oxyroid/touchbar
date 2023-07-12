@@ -1,4 +1,4 @@
-package com.oxy.mmr.components.touchbar
+package com.oxy.touchbar
 
 import android.graphics.Bitmap
 import androidx.compose.runtime.Composable
@@ -9,7 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 
 @Composable
-internal fun rememberTouchBarState(
+fun rememberTouchBarState(
     enabled: Boolean = true,
     initialX: Float = 0f,
     initialY: Float = 1f,
@@ -24,7 +24,7 @@ internal fun rememberTouchBarState(
 }
 
 @Immutable
-internal class TouchBarState(
+class TouchBarState(
     val enabled: Boolean,
     initialX: Float,
     initialY: Float,
@@ -32,17 +32,20 @@ internal class TouchBarState(
 ) {
     private var _x: Float by mutableStateOf(initialX)
     private var _y: Float by mutableStateOf(initialY)
+    private var _isXFocus: Boolean by mutableStateOf(false)
     private var _isYFocus: Boolean by mutableStateOf(false)
     private var _bitmaps: List<Bitmap?> by mutableStateOf(initialBitmaps)
 
     fun notify(
         x: Float? = null,
         y: Float? = null,
+        isXFocus: Boolean? = null,
         isYFocus: Boolean? = null,
         bitmaps: List<Bitmap?>? = null
     ) {
         x?.let { _x = it }
         y?.let { _y = it }
+        isXFocus?.let { _isXFocus = it }
         isYFocus?.let { _isYFocus = it }
         bitmaps?.let { _bitmaps = it }
     }
@@ -58,6 +61,7 @@ internal class TouchBarState(
         if (bitmaps != other.bitmaps) return false
         if (x != other.x) return false
         if (y != other.y) return false
+        if (isXFocus != other.isXFocus) return false
         if (isYFocus != other.isYFocus) return false
 
         return true
@@ -68,16 +72,18 @@ internal class TouchBarState(
         result = 31 * result + bitmaps.hashCode()
         result = 31 * result + x.hashCode()
         result = 31 * result + y.hashCode()
+        result = 31 * result + isXFocus.hashCode()
         result = 31 * result + isYFocus.hashCode()
         return result
     }
 
     override fun toString(): String {
-        return "TouchBarState(enabled=$enabled, x=$x, y=$y, isYFocus=$isYFocus)"
+        return "TouchBarState(enabled=$enabled, x=$x, y=$y, isXFocus=$isXFocus, isYFocus=$isYFocus)"
     }
 
     val x: Float get() = _x
     val y: Float get() = _y
     val bitmaps: List<Bitmap?> get() = _bitmaps
+    val isXFocus: Boolean get() = _isXFocus
     val isYFocus: Boolean get() = _isYFocus
 }
