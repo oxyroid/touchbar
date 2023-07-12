@@ -2,6 +2,8 @@
 
 TouchBar is a Video Clipper component made by Jetpack Compose.
 
+(control the clipper handles and display video thumbs only)
+
 [![](https://jitpack.io/v/realOxy/Compose-TouchBar.svg)](https://jitpack.io/#realOxy/Compose-TouchBar)
 
 # Installation
