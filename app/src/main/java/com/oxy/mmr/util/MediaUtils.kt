@@ -20,10 +20,8 @@ object MediaUtils {
         uri: Uri?,
         totalCount: Int = 28,
         oneByOne: Boolean = true,
-        // target scaled bitmap pixel length
-        // param: first int = width, second int = height
-        dstWidth: (Int, Int) -> Int = { it, _ -> it },
-        dstHeight: (Int, Int) -> Int = { _, it -> it }
+        dstWidth: (width: Int, height: Int) -> Int = { it, _ -> it },
+        dstHeight: (width: Int, height: Int) -> Int = { _, it -> it }
     ): Flow<Resource<List<Bitmap?>>> = channelFlow {
         send(Resource.Loading)
         if (uri == null) {
