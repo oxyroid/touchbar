@@ -70,10 +70,9 @@ DisposableEffect(Unit) {
 - `enabled: Boolean` handles is enabled.
 - `x: Float` left handle percentage(0f ~ 1f allowed).
 - `y: Float` right handle percentage(0f ~ 1f allowed).
-- `bitmaps: List<Bitmap?>` touch bar images, it is experimental feature.
 - `isXFocus: Boolean` is left handle is pressing.
 - `isYFocus: Boolean` is right handle is pressing.
-- `notify()` change x, y, bitmaps, isXFocus or isYFocus.
+- `notify()` change x, y, isXFocus or isYFocus.
 - `notifyBackground()` change background bitmap.
 
 # Demo
