@@ -37,8 +37,10 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.oxy.mmr.components.TimeZone
-import com.oxy.mmr.util.MediaUtils
-import com.oxy.mmr.wrapper.Resource
+import com.oxy.mmr.util.MediaUtils.getDuration
+import com.oxy.mmr.util.MediaUtils.loadThumbs
+import com.oxy.mmr.util.MediaUtils.merge
+import com.oxy.mmr.util.MediaUtils.recycleNullableUseless
 import com.oxy.touchbar.TouchBar
 import com.oxy.touchbar.rememberTouchBarState
 import kotlin.math.min
@@ -57,7 +59,6 @@ internal fun TouchBarScreen(
     var duration by remember { mutableStateOf(-1L) }
     val context = LocalContext.current
     var uri: Uri? by remember { mutableStateOf(null) }
-    var bitmaps: List<Bitmap?> by remember { mutableStateOf(emptyList()) }
 
     val touchBarState = rememberTouchBarState(
         enabled = duration >= 0L
@@ -68,26 +69,36 @@ internal fun TouchBarScreen(
     ) { newUri ->
         uri = newUri
     }
-    val resource by produceState<Resource<List<Bitmap?>>>(
-        Resource.Loading,
+
+    val thumbWidth = with(density) {
+        configuration.screenWidthDp.dp.toPx().roundToInt()
+    }
+
+    val bitmaps by produceState(
+        emptyList(),
         uri,
-        density,
-        configuration
+        thumbWidth
     ) {
-        val screenWidthPx = with(density) {
-            configuration.screenWidthDp.dp.toPx().roundToInt()
-        }
-        MediaUtils.loadThumbs(
+        loadThumbs(
             context = context,
             uri = uri,
             totalCount = thumbCount,
-            dstWidth = { w, _ -> min(w, screenWidthPx) },
+            dstWidth = { w, _ -> min(w, thumbWidth) },
             dstHeight = { w, h ->
-                val aw = min(w, screenWidthPx).toFloat()
+                val aw = min(w, thumbWidth).toFloat()
                 (aw / w * h).roundToInt()
             }
-        ).collect {
-            value = it
+        ).collect { newBitmaps ->
+            recycleNullableUseless(value, newBitmaps)
+            value = newBitmaps
+        }
+    }
+
+    LaunchedEffect(bitmaps) {
+        if (bitmaps.size == thumbCount) {
+            touchBarState.background?.asAndroidBitmap()?.recycle()
+            val merged = merge(bitmaps, Orientation.Horizontal)
+            touchBarState.notifyBackground(merged?.asImageBitmap())
         }
     }
 
@@ -116,24 +127,7 @@ internal fun TouchBarScreen(
 
     LaunchedEffect(uri) {
         duration = if (uri == null) -1
-        else MediaUtils.getDuration(context, uri)
-    }
-
-    LaunchedEffect(resource) {
-        // thread safe
-        val newBitmaps = when (val safeResource = resource) {
-            is Resource.Success -> safeResource.data
-            else -> emptyList()
-        }
-
-        MediaUtils.recycleNullableUseless(bitmaps, newBitmaps)
-        bitmaps = newBitmaps
-        if (bitmaps.size == thumbCount) {
-            touchBarState.background?.asAndroidBitmap()?.recycle()
-            touchBarState.notifyBackground(
-                MediaUtils.merge(bitmaps, Orientation.Horizontal)?.asImageBitmap()
-            )
-        }
+        else getDuration(context, uri)
     }
 
     Column(

@@ -57,6 +57,6 @@ dependencies {
     implementation "androidx.compose.ui:ui-tooling-preview"
     implementation "androidx.compose.material3:material3"
 
-    // implementation project(":touchbar")
-    implementation "com.github.realOxy:touchbar:1.3"
+     implementation project(":touchbar")
+//    implementation "com.github.realOxy:touchbar:1.3"
 }

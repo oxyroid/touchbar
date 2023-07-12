@@ -30,7 +30,7 @@ fun TouchBar(
             .fillMaxWidth()
             .height(64.dp)
     ) {
-        val area = remember(constraints) { verticalHandle / constraints.maxWidth }
+        val area = remember(activeVerticalHandle, constraints) { activeVerticalHandle / constraints.maxWidth }
         TouchBarBackground(
             background = state.background,
             radius = backgroundRadius

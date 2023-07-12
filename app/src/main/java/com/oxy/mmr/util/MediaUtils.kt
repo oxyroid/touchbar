@@ -7,7 +7,6 @@ import android.graphics.Rect
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import androidx.compose.foundation.gestures.Orientation
-import com.oxy.mmr.wrapper.Resource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -22,12 +21,7 @@ object MediaUtils {
         oneByOne: Boolean = true,
         dstWidth: (width: Int, height: Int) -> Int = { it, _ -> it },
         dstHeight: (width: Int, height: Int) -> Int = { _, it -> it }
-    ): Flow<Resource<List<Bitmap?>>> = channelFlow {
-        send(Resource.Loading)
-        if (uri == null) {
-            send(Resource.Failure("Uri is null."))
-            return@channelFlow
-        }
+    ): Flow<List<Bitmap?>> = channelFlow {
         try {
             var bitmaps = emptyList<Bitmap?>()
             MediaMetadataRetriever().use { retriever ->
@@ -53,14 +47,14 @@ object MediaUtils {
                             )
                         }
                         bitmap?.recycle()
-                        if (oneByOne) send(Resource.Success(bitmaps))
+                        if (oneByOne) send(bitmaps)
                     }
                 }
-                if (!oneByOne) send(Resource.Success(bitmaps))
+                if (!oneByOne) send(bitmaps)
 
             }
-        } catch (e: Exception) {
-            send(Resource.Failure(e.message.orEmpty()))
+        } catch (ignored: Exception) {
+
         }
     }
 
@@ -110,7 +104,7 @@ object MediaUtils {
         val r = oh / h
         val w = ow / r
         val pw = w / size
-        return Bitmap.createBitmap(w, h, Bitmap.Config.RGBA_F16).apply {
+        return Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888).apply {
             Canvas(this).apply {
                 var total = 0
                 forEach {

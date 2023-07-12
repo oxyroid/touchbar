@@ -14,7 +14,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -22,14 +21,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.oxy.mmr.components.VideoAlbum
 import com.oxy.mmr.components.VideoViewer
-import com.oxy.mmr.util.MediaUtils
-import com.oxy.mmr.wrapper.Resource
+import com.oxy.mmr.util.MediaUtils.loadThumbs
+import com.oxy.mmr.util.MediaUtils.recycleNullableUseless
 import com.oxy.mmr.wrapper.Shared
-
+import kotlin.math.min
+import kotlin.math.roundToInt
 
 private const val MIME_VIDEO = "video/*"
 
@@ -37,20 +39,34 @@ private const val MIME_VIDEO = "video/*"
 internal fun AlbumScreen(
     modifier: Modifier = Modifier
 ) {
+    val configuration = LocalConfiguration.current
+    val density = LocalDensity.current
+    val thumbWidth = with(density) {
+        configuration.screenWidthDp.dp.toPx().roundToInt() / 3
+    }
     val context = LocalContext.current
     var uri: Uri? by remember { mutableStateOf(null) }
-    var bitmaps: List<Bitmap?> by remember { mutableStateOf(emptyList()) }
     val launcher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
     ) { newUri ->
         uri = newUri
     }
-    val resource by produceState<Resource<List<Bitmap?>>>(
-        Resource.Loading,
-        uri
+    val bitmaps by produceState(
+        emptyList(),
+        uri,
+        thumbWidth
     ) {
-        MediaUtils.loadThumbs(context, uri).collect {
-            value = it
+        loadThumbs(
+            context = context,
+            uri = uri,
+            dstWidth = { w, _ -> min(w, thumbWidth) },
+            dstHeight = { w, h ->
+                val aw = min(w, thumbWidth).toFloat()
+                (aw / w * h).roundToInt()
+            }
+        ).collect { newBitmaps ->
+            recycleNullableUseless(value, newBitmaps)
+            value = newBitmaps
         }
     }
 
@@ -60,19 +76,6 @@ internal fun AlbumScreen(
                 it?.recycle()
             }
         }
-    }
-
-    LaunchedEffect(resource) {
-        // thread safe
-        val safeResource = resource
-
-        val newBitmaps = when (safeResource) {
-            is Resource.Success -> safeResource.data
-            else -> emptyList()
-        }
-
-        MediaUtils.recycleNullableUseless(bitmaps, newBitmaps)
-        bitmaps = newBitmaps
     }
 
     var element: Shared<Bitmap>? by remember { mutableStateOf(null) }
@@ -91,13 +94,6 @@ internal fun AlbumScreen(
                 },
                 modifier = Modifier.fillMaxSize()
             )
-            if (resource !is Resource.Success) {
-                Text(
-                    text = resource.toString(),
-                    style = MaterialTheme.typography.labelMedium,
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            }
         }
 
         Button(
