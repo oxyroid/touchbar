@@ -1,41 +1,34 @@
 package com.oxy.touchbar
 
-import android.graphics.Bitmap
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
-import kotlin.math.min
+import androidx.compose.ui.graphics.ImageBitmap
 
 @Composable
 internal fun TouchBarBackground(
-    bitmaps: List<Bitmap?>,
-    modifier: Modifier = Modifier
+    background: ImageBitmap?,
+    modifier: Modifier = Modifier,
+    radius: Int = TouchBarDefaults.BackgroundRadiusPercent
 ) {
-    Canvas(modifier.fillMaxSize()) {
-        var totalX = 0
-        bitmaps.forEach { bitmap ->
-            if (bitmap == null) {
-                drawRect(
-                    color = Color.Black,
-                    topLeft = Offset(
-                        x = totalX.toFloat(),
-                        y = 0f
-                    )
+    Canvas(
+        modifier
+            .clip(RoundedCornerShape(radius))
+            .fillMaxSize()) {
+        drawRect(Color.Black)
+        if (background != null) {
+            drawImage(
+                background,
+                topLeft = Offset(
+                    x = 0f,
+                    y = this.size.height / 2 - background.height / 2
                 )
-            } else {
-                drawImage(
-                    bitmap.asImageBitmap(),
-                    topLeft = Offset(
-                        x = totalX.toFloat(),
-                        y = 0f
-                    )
-                )
-                totalX += min(bitmap.width, bitmap.height)
-            }
+            )
         }
     }
 }

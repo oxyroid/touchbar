@@ -6,6 +6,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,6 +27,7 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -126,7 +128,12 @@ internal fun TouchBarScreen(
 
         MediaUtils.recycleNullableUseless(bitmaps, newBitmaps)
         bitmaps = newBitmaps
-        // touchBarState.notify(bitmaps = bitmaps)
+        if (bitmaps.size == thumbCount) {
+            touchBarState.background?.asAndroidBitmap()?.recycle()
+            touchBarState.notifyBackground(
+                MediaUtils.merge(bitmaps, Orientation.Horizontal)?.asImageBitmap()
+            )
+        }
     }
 
     Column(
@@ -202,3 +209,4 @@ internal fun TouchBarScreen(
         }
     }
 }
+

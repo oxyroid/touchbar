@@ -2,8 +2,11 @@ package com.oxy.mmr.util
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Rect
 import android.media.MediaMetadataRetriever
 import android.net.Uri
+import androidx.compose.foundation.gestures.Orientation
 import com.oxy.mmr.wrapper.Resource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
@@ -85,10 +88,55 @@ object MediaUtils {
     }
 
     suspend fun recycleNullableUseless(old: List<Bitmap?>, new: List<Bitmap?>) = coroutineScope {
-        withContext(Dispatchers.IO) {
-            old.forEach { bitmap ->
-                if (bitmap !in new) {
-                    bitmap?.recycle()
+        recycleUseless(old.filterNotNull(), new.filterNotNull())
+    }
+
+    suspend fun merge(
+        bitmaps: List<Bitmap?>,
+        orientation: Orientation = Orientation.Horizontal,
+        shortPixel: Int = 48,
+    ): Bitmap? = coroutineScope {
+        if (bitmaps.all { it == null }) null
+        else withContext(Dispatchers.Default) {
+            when (orientation) {
+                Orientation.Vertical -> bitmaps.mergeVertical(shortPixel)
+                Orientation.Horizontal -> bitmaps.mergeHorizontal(shortPixel)
+            }
+        }
+    }
+
+    private fun List<Bitmap?>.mergeHorizontal(shortPixel: Int): Bitmap? {
+        val oh = maxOf { it?.height ?: 0 }
+        val ow = sumOf { it?.width ?: 0 }
+        val h = shortPixel
+        val r = oh / h
+        val w = ow / r
+        val pw = w / size
+        return Bitmap.createBitmap(w, h, Bitmap.Config.RGBA_F16).apply {
+            Canvas(this).apply {
+                var total = 0
+                forEach {
+                    it?.let { drawBitmap(it, null, Rect(total, 0, total + pw, h), null) }
+                    total += pw
+                }
+            }
+        }
+    }
+
+    private fun List<Bitmap?>.mergeVertical(shortPixel: Int): Bitmap? {
+        val ow = maxOf { it?.width ?: 0 }
+        val oh = sumOf { it?.height ?: 0 }
+        val w = shortPixel
+        val r = ow / w
+        val h = oh / r
+        val ph = h / size
+
+        return Bitmap.createBitmap(w, h, Bitmap.Config.RGBA_F16).apply {
+            Canvas(this).apply {
+                var total = 0
+                forEach {
+                    it?.let { drawBitmap(it, null, Rect(0, total, h, total + ph), null) }
+                    total += ph
                 }
             }
         }

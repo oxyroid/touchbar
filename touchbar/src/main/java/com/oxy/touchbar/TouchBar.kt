@@ -1,23 +1,14 @@
 package com.oxy.touchbar
 
-import androidx.annotation.FloatRange
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
 import kotlin.math.abs
 
@@ -25,42 +16,34 @@ import kotlin.math.abs
 fun TouchBar(
     modifier: Modifier = Modifier,
     state: TouchBarState = rememberTouchBarState(),
-    backgroundRadiusPresent: Int = TouchBarDefaults.BackgroundRadiusPresent,
-    // The percentage of the touchable area of
-    // the left and right of the handles to the entire TouchBar
-    @FloatRange(0.01, 0.49) area: Float = 0.1f,
+    backgroundRadius: Int = TouchBarDefaults.BackgroundRadiusPercent,
+    handleRadius: Float = TouchBarDefaults.HandleRadius,
+    verticalHandle: Float = TouchBarDefaults.VerticalHandle,
+    activeVerticalHandle: Float = TouchBarDefaults.ActiveVerticalHandle,
+    handleInset: Float = TouchBarDefaults.HandleInset,
+    activeHandleInset: Float = TouchBarDefaults.ActiveHandleInset,
+    edgeColor: Color = TouchBarDefaults.EdgeColor,
+    activeEdgeColor: Color = TouchBarDefaults.ActiveEdgeColor
 ) {
-    val handleRadius = 18f
-    val feedback = LocalHapticFeedback.current
-    val speederX = rememberSpeeder()
-    val degreeX by remember {
-        derivedStateOf {
-            TouchBarDefaults.calculateDegree(speederX.speed)
-        }
-    }
-
-    val speederY = rememberSpeeder()
-    val degreeY by remember {
-        derivedStateOf {
-            TouchBarDefaults.calculateDegree(speederY.speed)
-        }
-    }
-
-    Box(
+    BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()
             .height(64.dp)
     ) {
+        val area = remember(constraints) { verticalHandle / constraints.maxWidth }
         TouchBarBackground(
-            bitmaps = state.bitmaps,
-            modifier = Modifier
-                .padding(vertical = 4.dp)
-                .clip(RoundedCornerShape(backgroundRadiusPresent))
-                .background(Color.Black)
+            background = state.background,
+            radius = backgroundRadius
         )
         TouchBarSelector(
             state = state,
-            handleRadius = handleRadius
+            handleRadius = handleRadius,
+            verticalHandle = verticalHandle,
+            activeVerticalHandle = activeVerticalHandle,
+            handleInset = handleInset,
+            activeHandleInset = activeHandleInset,
+            edgeColor = edgeColor,
+            activeEdgeColor = activeEdgeColor
         )
         TouchBarPanel(
             modifier = Modifier
@@ -95,9 +78,6 @@ fun TouchBar(
                                         x = (delta + state.x).coerceIn(0f, state.y)
                                     )
                                     touched = innerTouched + delta
-                                    if (dragAmount.x > 0) speederX.increase()
-                                    else if (dragAmount.x < 0) speederX.decrease()
-                                    feedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                                 }
 
                                 fun notifyXFocus() {
@@ -111,9 +91,6 @@ fun TouchBar(
                                         y = (delta + state.y).coerceIn(state.x, 1f)
                                     )
                                     touched = innerTouched + delta
-                                    if (dragAmount.y > 0) speederY.increase()
-                                    else if (dragAmount.y < 0) speederY.decrease()
-                                    feedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                                 }
 
                                 fun notifyYFocus() {
