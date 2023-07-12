@@ -12,6 +12,6 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "ComposeTouchBar"
+rootProject.name = "touchbar"
 include ':app'
 include ':touchbar'

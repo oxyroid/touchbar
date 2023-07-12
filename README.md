@@ -4,7 +4,7 @@ TouchBar is a Video Clipper component made by Jetpack Compose.
 
 (control the clipper handles and display video thumbs only)
 
-[![](https://jitpack.io/v/realOxy/Compose-TouchBar.svg)](https://jitpack.io/#realOxy/Compose-TouchBar)
+[![](https://jitpack.io/v/realOxy/touchbar.svg)](https://jitpack.io/#realOxy/touchbar)
 
 # Installation
 
@@ -24,7 +24,7 @@ Add the dependency
 
 ```groovy
 dependencies {
-    implementation 'com.github.realOxy:Compose-TouchBar:(insert latest version)'
+    implementation 'com.github.realOxy:touchbar:(insert latest version)'
 }
 ```
 
