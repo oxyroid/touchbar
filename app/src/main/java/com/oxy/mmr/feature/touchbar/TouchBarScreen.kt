@@ -27,7 +27,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
@@ -37,6 +39,7 @@ import com.oxy.mmr.components.touchbar.TouchBar
 import com.oxy.mmr.components.touchbar.rememberTouchBarState
 import com.oxy.mmr.util.MediaUtils
 import com.oxy.mmr.wrapper.Resource
+import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 
@@ -47,12 +50,14 @@ private const val thumbCount = 28
 internal fun TouchBarScreen(
     modifier: Modifier = Modifier
 ) {
+    val configuration = LocalConfiguration.current
+    val density = LocalDensity.current
     var duration by remember { mutableStateOf(-1L) }
     val context = LocalContext.current
     var uri: Uri? by remember { mutableStateOf(null) }
     var bitmaps: List<Bitmap?> by remember { mutableStateOf(emptyList()) }
 
-    val state = rememberTouchBarState(
+    val touchBarState = rememberTouchBarState(
         enabled = duration >= 0L
     )
 
@@ -63,25 +68,40 @@ internal fun TouchBarScreen(
     }
     val resource by produceState<Resource<List<Bitmap?>>>(
         Resource.Loading,
-        uri
+        uri,
+        density,
+        configuration
     ) {
+        val screenWidthPx = with(density) {
+            configuration.screenWidthDp.dp.toPx().roundToInt()
+        }
         MediaUtils.loadThumbs(
             context = context,
             uri = uri,
-            totalCount = thumbCount
+            totalCount = thumbCount,
+            dstWidth = { w, _ -> min(w, screenWidthPx) },
+            dstHeight = { w, h ->
+                val aw = min(w, screenWidthPx).toFloat()
+                (aw / w * h).roundToInt()
+            }
         ).collect {
             value = it
         }
     }
 
-    var current: Int by remember { mutableStateOf(-1) }
+    var currentX: Int by remember { mutableStateOf(-1) }
+    var currentY: Int by remember { mutableStateOf(-1) }
 
     val bitmap by produceState<Bitmap?>(
         null,
         bitmaps,
-        current
+        currentX,
+        currentY,
+        touchBarState.isYFocus
     ) {
-        value = bitmaps.getOrNull(current)
+        value = bitmaps.getOrNull(
+            if (!touchBarState.isYFocus) currentX else currentY
+        )
     }
 
     DisposableEffect(Unit) {
@@ -106,7 +126,7 @@ internal fun TouchBarScreen(
 
         MediaUtils.recycleNullableUseless(bitmaps, newBitmaps)
         bitmaps = newBitmaps
-        state.notify(bitmaps = bitmaps)
+        touchBarState.notify(bitmaps = bitmaps)
     }
 
     Column(
@@ -152,29 +172,33 @@ internal fun TouchBarScreen(
                 .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
             TimeZone(
-                millisecond = remember(duration, state.x) {
+                millisecond = remember(duration, touchBarState.x) {
                     if (duration == -1L) -1L
-                    else (duration * state.x).roundToLong()
+                    else (duration * touchBarState.x).roundToLong()
                 }
             )
             TimeZone(
-                millisecond = remember(duration, state.y) {
+                millisecond = remember(duration, touchBarState.y) {
                     if (duration == -1L) -1L
-                    else (duration * state.y).roundToLong()
+                    else (duration * touchBarState.y).roundToLong()
                 }
             )
         }
 
         TouchBar(
-            state = state,
+            state = touchBarState,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
         )
 
-        LaunchedEffect(state.x) {
-            val target = (state.x * thumbCount).roundToInt()
-            if (current != target) current = target
+        LaunchedEffect(touchBarState.x) {
+            val target = (touchBarState.x * thumbCount).roundToInt()
+            if (currentX != target) currentX = target
+        }
+        LaunchedEffect(touchBarState.y) {
+            val target = (touchBarState.y * thumbCount).roundToInt()
+            if (currentY != target) currentY = target
         }
     }
 }

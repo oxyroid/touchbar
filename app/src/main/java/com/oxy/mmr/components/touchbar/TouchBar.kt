@@ -15,12 +15,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
@@ -30,9 +27,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
-import com.oxy.mmr.util.MediaUtils
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlin.math.abs
 import kotlin.math.min
 
 @Composable
@@ -76,21 +71,72 @@ internal fun TouchBar(
         TouchBarPanel(
             modifier = Modifier
                 .pointerInput(state.enabled) {
-                    detectDragGestures { change, dragAmount ->
-                        if (!state.enabled) return@detectDragGestures
-                        change.consume()
-                        state.notify(
-                            px = change.pressed
-                        )
-                        val delta = dragAmount.x / this.size.width
-                        feedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    // 0f~1f
+                    var touched: Float? = null
+                    detectDragGestures(
+                        onDragStart = { offset ->
+                            touched = offset.x / this.size.width
+                        },
+                        onDragEnd = {
+                            touched = null
+                            state.notify(
+                                isYFocus = false
+                            )
+                        },
+                        onDragCancel = {
+                            touched = null
+                            state.notify(
+                                isYFocus = false
+                            )
+                        },
+                        onDrag = { change, dragAmount ->
+                            if (!state.enabled) return@detectDragGestures
+                            change.consume()
+                            val delta = dragAmount.x / this.size.width
+                            touched?.let { innerTouched ->
+                                fun notifyX() {
+                                    state.notify(
+                                        x = (delta + state.x).coerceIn(0f, state.y),
+                                        isYFocus = false
+                                    )
+                                    touched = innerTouched + delta
+                                    if (dragAmount.x > 0) speederX.increase()
+                                    else if (dragAmount.x < 0) speederX.decrease()
+                                    feedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                }
 
-                        state.notify(
-                            x = (delta + state.x).coerceIn(0f, 1f)
-                        )
-                        if (dragAmount.x > 0) speederX.increase()
-                        else if (dragAmount.x < 0) speederX.decrease()
-                    }
+                                fun notifyY() {
+                                    state.notify(
+                                        y = (delta + state.y).coerceIn(state.x, 1f),
+                                        isYFocus = true
+                                    )
+                                    touched = innerTouched + delta
+                                    if (dragAmount.y > 0) speederY.increase()
+                                    else if (dragAmount.y < 0) speederY.decrease()
+                                    feedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                }
+                                when {
+                                    abs(innerTouched - state.x) <= 0.1f -> {
+                                        notifyX()
+                                    }
+
+                                    abs(innerTouched - state.y) <= 0.1f -> {
+                                        notifyY()
+                                    }
+
+                                    innerTouched in (state.x..state.y) -> {
+                                        if ((delta < 0f) && (state.x + delta) > 0f) {
+                                            notifyX()
+                                            notifyY()
+                                        } else if ((delta > 0f) && (state.y + delta) < 1f) {
+                                            notifyX()
+                                            notifyY()
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    )
                 }
         )
     }
@@ -106,19 +152,9 @@ internal fun TouchBarBackground(
     bitmaps: List<Bitmap?>,
     modifier: Modifier = Modifier
 ) {
-    var compressed: List<Bitmap?> by remember(bitmaps) {
-        mutableStateOf(emptyList())
-    }
-    LaunchedEffect(bitmaps) {
-        withContext(Dispatchers.IO) {
-            compressed = bitmaps.map {
-                it?.let { MediaUtils.compress(it) }
-            }
-        }
-    }
     Canvas(modifier.fillMaxSize()) {
         var totalX = 0
-        compressed.forEach { bitmap ->
+        bitmaps.forEach { bitmap ->
             if (bitmap == null) {
                 drawRect(
                     color = Color.Black,
@@ -128,7 +164,13 @@ internal fun TouchBarBackground(
                     )
                 )
             } else {
-                drawImage(bitmap.asImageBitmap(), topLeft = Offset(x = totalX.toFloat(), y = 0f))
+                drawImage(
+                    bitmap.asImageBitmap(),
+                    topLeft = Offset(
+                        x = totalX.toFloat(),
+                        y = 0f
+                    )
+                )
                 totalX += min(bitmap.width, bitmap.height)
             }
         }

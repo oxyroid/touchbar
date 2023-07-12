@@ -2,7 +2,6 @@ package com.oxy.mmr.util
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import com.oxy.mmr.wrapper.Resource
@@ -11,15 +10,17 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.withContext
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
 
 object MediaUtils {
     fun loadThumbs(
         context: Context,
         uri: Uri?,
         totalCount: Int = 28,
-        oneByOne: Boolean = true
+        oneByOne: Boolean = true,
+        // target scaled bitmap pixel length
+        // param: first int = width, second int = height
+        dstWidth: (Int, Int) -> Int = { it, _ -> it },
+        dstHeight: (Int, Int) -> Int = { _, it -> it }
     ): Flow<Resource<List<Bitmap?>>> = channelFlow {
         send(Resource.Loading)
         if (uri == null) {
@@ -30,8 +31,9 @@ object MediaUtils {
             var bitmaps = emptyList<Bitmap?>()
             MediaMetadataRetriever().use { retriever ->
                 retriever.setDataSource(context, uri)
-                val duration = retriever
-                    .extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toInt() ?: -1
+                val duration = retriever.extractMetadata(
+                    MediaMetadataRetriever.METADATA_KEY_DURATION
+                )?.toInt() ?: -1
 
                 val deltaTime = duration / totalCount * 1000
 
@@ -41,7 +43,15 @@ object MediaUtils {
                             (deltaTime.toLong() * i),
                             MediaMetadataRetriever.OPTION_CLOSEST_SYNC
                         )
-                        bitmaps = bitmaps + bitmap
+                        bitmaps = bitmaps + bitmap?.let {
+                            Bitmap.createScaledBitmap(
+                                it,
+                                dstWidth(it.width, it.height),
+                                dstHeight(it.width, it.height),
+                                true
+                            )
+                        }
+                        bitmap?.recycle()
                         if (oneByOne) send(Resource.Success(bitmaps))
                     }
                 }
@@ -62,22 +72,6 @@ object MediaUtils {
                 retriever.setDataSource(context, uri)
                 retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLong()
                     ?: -1L
-            }
-        }
-    }
-
-    suspend fun compress(bitmap: Bitmap): Bitmap = coroutineScope {
-        withContext(Dispatchers.IO) {
-            val output = ByteArrayOutputStream()
-            output.use { innerOutput ->
-                bitmap.compress(
-                    Bitmap.CompressFormat.PNG,
-                    0,
-                    innerOutput
-                )
-            }
-            ByteArrayInputStream(output.toByteArray()).use {
-                BitmapFactory.decodeStream(it)
             }
         }
     }
