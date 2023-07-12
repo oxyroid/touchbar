@@ -13,10 +13,8 @@ internal fun rememberTouchBarState(
     enabled: Boolean = true,
     initialX: Float = 0f,
     initialY: Float = 1f,
-    initialPx: Boolean = false,
-    initialPy: Boolean = false,
     initialBitmaps: List<Bitmap?> = emptyList(),
-): TouchBarState = remember(enabled, initialX, initialY, initialPx, initialPy, initialBitmaps) {
+): TouchBarState = remember(enabled, initialX, initialY, initialBitmaps) {
     TouchBarState(
         enabled = enabled,
         initialX = initialX,
