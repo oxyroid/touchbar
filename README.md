@@ -2,7 +2,7 @@
 
 TouchBar is a Video Clipper component made by Jetpack Compose.
 
-(control the clipper handles and display video thumbs only)
+(control the clipper handles and display video thumbnails only)
 
 [![](https://jitpack.io/v/realOxy/touchbar.svg)](https://jitpack.io/#realOxy/touchbar)
 
@@ -90,4 +90,8 @@ means the touched area will be expended to 30% of whole touch bar width.
 
 [Video Editor](app/src/main/java/com/oxy/mmr/feature/touchbar/TouchBarScreen.kt)
 
-[111.webm](https://github.com/realOxy/MediaMetadataRetrieverDemo/assets/70512220/82ef842a-5925-4c0c-a2c3-bf8dc4d5f2da)
+
+https://github.com/realOxy/touchbar/assets/70512220/38ca22b7-4a0b-4574-a914-26db801aa5d2
+
+
+
