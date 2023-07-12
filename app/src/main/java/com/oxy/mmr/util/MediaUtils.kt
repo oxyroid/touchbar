@@ -97,7 +97,7 @@ object MediaUtils {
         shortPixel: Int = 48,
     ): Bitmap? = coroutineScope {
         if (bitmaps.all { it == null }) null
-        else withContext(Dispatchers.Default) {
+        else withContext(Dispatchers.IO) {
             when (orientation) {
                 Orientation.Vertical -> bitmaps.mergeVertical(shortPixel)
                 Orientation.Horizontal -> bitmaps.mergeHorizontal(shortPixel)
