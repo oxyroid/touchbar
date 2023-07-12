@@ -54,7 +54,7 @@ afterEvaluate {
             release(MavenPublication) {
                 groupId = "com.github.realOxy"
                 artifactId = "touchbar"
-                version = "1.0"
+                version = "1.1"
 
                 from components.release
             }
