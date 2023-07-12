@@ -38,6 +38,7 @@ TouchBar(
 )
 LaunchEffect(localVideo) {
     val newBitmaps = fetchBitmaps(localVideo)
+    duration = localVideo.duration
     touchBarState.bitmaps.forEach {
         it?.recycle()
     }
