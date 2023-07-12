@@ -27,10 +27,10 @@ fun TouchBar(
     state: TouchBarState = rememberTouchBarState(),
     backgroundRadiusPresent: Int = TouchBarDefaults.BackgroundRadiusPresent,
     // The percentage of the touchable area of
-    // the left and right of the handle to the entire TouchBar
+    // the left and right of the handles to the entire TouchBar
     @FloatRange(0.01, 0.49) area: Float = 0.1f,
 ) {
-    val handlerRadius = 18f
+    val handleRadius = 18f
     val feedback = LocalHapticFeedback.current
     val speederX = rememberSpeeder()
     val degreeX by remember {
@@ -60,7 +60,7 @@ fun TouchBar(
         )
         TouchBarSelector(
             state = state,
-            handlerRadius = handlerRadius
+            handleRadius = handleRadius
         )
         TouchBarPanel(
             modifier = Modifier

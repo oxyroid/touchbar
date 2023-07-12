@@ -27,6 +27,7 @@ dependencies {
 ```
 
 # Quick Start
+
 ```kotlin
 var duration: Long by remember { mutableStateOf(-1L) }
 val touchBarState = rememberTouchBarState(
@@ -55,6 +56,25 @@ DisposableEffect(Unit) {
     }
 }
 ```
+
+# 
+
+# Adjust touchable area of the handles
+
+`area: Float (0.01f ~ 0.49f allowed)`
+
+The percentage of the touchable area of the **left and right** of the handles to the entire TouchBar.
+
+when it is 0.15f:
+
+```kotlin
+TouchBar(
+    area = 0.15f
+)
+```
+
+means the touched area will be expended to 30% of whole touch bar width.
+
 # Demo
 
 [Video Editor](app/src/main/java/com/oxy/mmr/feature/touchbar/TouchBarScreen.kt)

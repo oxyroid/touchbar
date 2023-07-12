@@ -13,7 +13,7 @@ import androidx.compose.ui.graphics.StrokeCap
 @Composable
 internal fun TouchBarSelector(
     state: TouchBarState,
-    handlerRadius: Float,
+    handleRadius: Float,
     modifier: Modifier = Modifier
 ) {
     Canvas(
@@ -31,7 +31,7 @@ internal fun TouchBarSelector(
             size = this.size.copy(
                 width = TouchBarDefaults.PanelVerticalWidth
             ),
-            cornerRadius = CornerRadius(handlerRadius)
+            cornerRadius = CornerRadius(handleRadius)
         )
         // x panel v inner
         drawLine(
@@ -58,7 +58,7 @@ internal fun TouchBarSelector(
             size = this.size.copy(
                 width = TouchBarDefaults.PanelVerticalWidth
             ),
-            cornerRadius = CornerRadius(handlerRadius)
+            cornerRadius = CornerRadius(handleRadius)
         )
         // y panel v inner
         drawLine(
@@ -86,7 +86,7 @@ internal fun TouchBarSelector(
                 width = this.size.width * (state.y - state.x),
                 height = TouchBarDefaults.PanelHorizontalWidth
             ),
-            cornerRadius = CornerRadius(handlerRadius)
+            cornerRadius = CornerRadius(handleRadius)
         )
         // x2
         drawRoundRect(
@@ -99,7 +99,7 @@ internal fun TouchBarSelector(
                 width = this.size.width * (state.y - state.x),
                 height = TouchBarDefaults.PanelHorizontalWidth
             ),
-            cornerRadius = CornerRadius(handlerRadius)
+            cornerRadius = CornerRadius(handleRadius)
         )
     }
 }
