@@ -40,14 +40,16 @@ TouchBar(
 LaunchEffect(localVideo) {
     val newBitmaps = fetchBitmaps(localVideo)
     duration = localVideo.duration
+    // recycle useless bitmaps
     touchBarState.bitmaps.forEach {
-        it?.recycle()
+        if(it !in newBitmaps) it?.recycle()
     }
     touchBarState.notify(
-        // Optional
+        // Experimental
         bitmaps = newBitmaps
     )
 }
+// recycle all bitmaps
 DisposableEffect(Unit) {
     onDispose {
         bitmaps.forEach {
