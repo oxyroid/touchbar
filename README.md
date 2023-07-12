@@ -39,17 +39,22 @@ TouchBar(
     state = touchBarState,
     modifier = Modifier.fillMathWidth()
 )
-LaunchEffect(localVideo) {
-    val newBitmaps = fetchBitmaps(localVideo)
-    duration = localVideo.duration
-    // recycle useless bitmaps
-    touchBarState.bitmaps.forEach {
-        if(it !in newBitmaps) it?.recycle()
+// MediaUtils is available in the project app module.
+// It is an android platform utils.
+LaunchEffect(uri) {
+    // loadThumbs is a flow-returned method actually but not list.
+    // if you wanna a correct way to use it, just see app module demo.
+    val newBitmaps: List<Bitmap?> = MediaUtils.loadThumbs(uri)
+    duration = if (uri == null) -1
+    else MediaUtils.getDuration(context, uri)
+    MediaUtils.recycleNullableUseless(bitmaps, newBitmaps)
+    bitmaps = newBitmaps
+    if (bitmaps.size == thumbCount) {
+        touchBarState.background?.asAndroidBitmap()?.recycle()
+        touchBarState.notifyBackground(
+            MediaUtils.merge(bitmaps, Orientation.Horizontal)?.asImageBitmap()
+        )
     }
-    touchBarState.notify(
-        // Experimental
-        bitmaps = newBitmaps
-    )
 }
 // recycle all bitmaps
 DisposableEffect(Unit) {
@@ -69,22 +74,7 @@ DisposableEffect(Unit) {
 - `isXFocus: Boolean` is left handle is pressing.
 - `isYFocus: Boolean` is right handle is pressing.
 - `notify()` change x, y, bitmaps, isXFocus or isYFocus.
-
-# Adjust touchable area of the handles
-
-`area: Float (0.01f ~ 0.49f allowed)`
-
-The percentage of the touchable area of the **left and right** of the handles to the entire TouchBar.
-
-when it is 0.15f:
-
-```kotlin
-TouchBar(
-    area = 0.15f
-)
-```
-
-means the touched area will be expended to 30% of whole touch bar width.
+- `notifyBackground()` change background bitmap.
 
 # Demo
 
