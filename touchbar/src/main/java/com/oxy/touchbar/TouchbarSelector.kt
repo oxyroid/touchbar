@@ -18,16 +18,16 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 
 @Composable
-internal fun TouchBarSelector(
-    state: TouchBarState,
+internal fun TouchbarSelector(
+    state: TouchbarState,
     handleRadius: Float,
     modifier: Modifier = Modifier,
-    verticalHandle: Float = TouchBarDefaults.VerticalHandle,
-    activeVerticalHandle: Float = TouchBarDefaults.ActiveVerticalHandle,
-    handleInset: Float = TouchBarDefaults.HandleInset,
-    activeHandleInset: Float = TouchBarDefaults.ActiveHandleInset,
-    edgeColor: Color = TouchBarDefaults.EdgeColor,
-    activeEdgeColor: Color = TouchBarDefaults.ActiveEdgeColor
+    verticalHandle: Float = TouchbarDefaults.VerticalHandle,
+    activeVerticalHandle: Float = TouchbarDefaults.ActiveVerticalHandle,
+    handleInset: Float = TouchbarDefaults.HandleInset,
+    activeHandleInset: Float = TouchbarDefaults.ActiveHandleInset,
+    edgeColor: Color = TouchbarDefaults.EdgeColor,
+    activeEdgeColor: Color = TouchbarDefaults.ActiveEdgeColor
 ) {
     val feedback = LocalHapticFeedback.current
     val color by animateColorAsState(
@@ -119,7 +119,7 @@ internal fun TouchBarSelector(
             ),
             size = this.size.copy(
                 width = this.size.width * (state.y - state.x),
-                height = TouchBarDefaults.HorizontalHandle
+                height = TouchbarDefaults.HorizontalHandle
             ),
             cornerRadius = CornerRadius(handleRadius)
         )
@@ -128,11 +128,11 @@ internal fun TouchBarSelector(
             color = color,
             topLeft = Offset(
                 x = state.x * this.size.width,
-                y = this.size.height - TouchBarDefaults.HorizontalHandle
+                y = this.size.height - TouchbarDefaults.HorizontalHandle
             ),
             size = this.size.copy(
                 width = this.size.width * (state.y - state.x),
-                height = TouchBarDefaults.HorizontalHandle
+                height = TouchbarDefaults.HorizontalHandle
             ),
             cornerRadius = CornerRadius(handleRadius)
         )

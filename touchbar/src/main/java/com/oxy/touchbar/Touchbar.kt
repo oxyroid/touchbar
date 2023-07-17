@@ -9,33 +9,37 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Dp
 import kotlin.math.abs
 
 @Composable
-fun TouchBar(
+fun Touchbar(
     modifier: Modifier = Modifier,
-    state: TouchBarState = rememberTouchBarState(),
-    backgroundRadius: Int = TouchBarDefaults.BackgroundRadiusPercent,
-    handleRadius: Float = TouchBarDefaults.HandleRadius,
-    verticalHandle: Float = TouchBarDefaults.VerticalHandle,
-    activeVerticalHandle: Float = TouchBarDefaults.ActiveVerticalHandle,
-    handleInset: Float = TouchBarDefaults.HandleInset,
-    activeHandleInset: Float = TouchBarDefaults.ActiveHandleInset,
-    edgeColor: Color = TouchBarDefaults.EdgeColor,
-    activeEdgeColor: Color = TouchBarDefaults.ActiveEdgeColor
+    state: TouchbarState = rememberTouchbarState(),
+    height: Dp = TouchbarDefaults.HeightDp,
+    backgroundRadius: Int = TouchbarDefaults.BackgroundRadiusPercent,
+    handleRadius: Float = TouchbarDefaults.HandleRadius,
+    verticalHandle: Float = TouchbarDefaults.VerticalHandle,
+    activeVerticalHandle: Float = TouchbarDefaults.ActiveVerticalHandle,
+    handleInset: Float = TouchbarDefaults.HandleInset,
+    activeHandleInset: Float = TouchbarDefaults.ActiveHandleInset,
+    edgeColor: Color = TouchbarDefaults.EdgeColor,
+    activeEdgeColor: Color = TouchbarDefaults.ActiveEdgeColor
 ) {
     BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()
-            .height(64.dp)
+            .height(height)
     ) {
-        val area = remember(activeVerticalHandle, constraints) { activeVerticalHandle / constraints.maxWidth }
-        TouchBarBackground(
+        val area = remember(
+            activeVerticalHandle,
+            constraints.maxWidth
+        ) { activeVerticalHandle / constraints.maxWidth }
+        TouchbarBackground(
             background = state.background,
             radius = backgroundRadius
         )
-        TouchBarSelector(
+        TouchbarSelector(
             state = state,
             handleRadius = handleRadius,
             verticalHandle = verticalHandle,
@@ -45,7 +49,7 @@ fun TouchBar(
             edgeColor = edgeColor,
             activeEdgeColor = activeEdgeColor
         )
-        TouchBarPanel(
+        TouchbarPanel(
             modifier = Modifier
                 .pointerInput(state.enabled, area) {
                     // 0f~1f

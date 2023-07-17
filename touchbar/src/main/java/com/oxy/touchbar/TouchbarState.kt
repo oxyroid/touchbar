@@ -9,12 +9,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
 
 @Composable
-fun rememberTouchBarState(
+fun rememberTouchbarState(
     enabled: Boolean = true,
     initialX: Float = 0f,
     initialY: Float = 1f
-): TouchBarState = remember(enabled, initialX, initialY) {
-    TouchBarState(
+): TouchbarState = remember(enabled, initialX, initialY) {
+    TouchbarState(
         enabled = enabled,
         initialX = initialX,
         initialY = initialY
@@ -22,7 +22,7 @@ fun rememberTouchBarState(
 }
 
 @Immutable
-class TouchBarState(
+class TouchbarState(
     val enabled: Boolean,
     initialX: Float,
     initialY: Float,
@@ -53,7 +53,7 @@ class TouchBarState(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as TouchBarState
+        other as TouchbarState
 
         if (enabled != other.enabled) return false
         if (background != other.background) return false

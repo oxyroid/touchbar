@@ -11,15 +11,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 
 @Composable
-internal fun TouchBarBackground(
+internal fun TouchbarBackground(
     background: ImageBitmap?,
     modifier: Modifier = Modifier,
-    radius: Int = TouchBarDefaults.BackgroundRadiusPercent
+    radius: Int = TouchbarDefaults.BackgroundRadiusPercent
 ) {
     Canvas(
         modifier
             .clip(RoundedCornerShape(radius))
-            .fillMaxSize()) {
+            .fillMaxSize()
+    ) {
         drawRect(Color.Black)
         if (background != null) {
             drawImage(

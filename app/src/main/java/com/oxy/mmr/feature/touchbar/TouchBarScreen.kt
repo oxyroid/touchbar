@@ -41,8 +41,8 @@ import com.oxy.mmr.util.MediaUtils.getDuration
 import com.oxy.mmr.util.MediaUtils.loadThumbs
 import com.oxy.mmr.util.MediaUtils.merge
 import com.oxy.mmr.util.MediaUtils.recycleNullableUseless
-import com.oxy.touchbar.TouchBar
-import com.oxy.touchbar.rememberTouchBarState
+import com.oxy.touchbar.Touchbar
+import com.oxy.touchbar.rememberTouchbarState
 import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
@@ -60,7 +60,7 @@ internal fun TouchBarScreen(
     val context = LocalContext.current
     var uri: Uri? by remember { mutableStateOf(null) }
 
-    val touchBarState = rememberTouchBarState(
+    val touchBarState = rememberTouchbarState(
         enabled = duration >= 0L
     )
 
@@ -186,7 +186,7 @@ internal fun TouchBarScreen(
             )
         }
 
-        TouchBar(
+        Touchbar(
             state = touchBarState,
             modifier = Modifier
                 .fillMaxWidth()
