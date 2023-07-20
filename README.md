@@ -32,11 +32,11 @@ dependencies {
 
 ```kotlin
 var duration: Long by remember { mutableStateOf(-1L) }
-val touchBarState = rememberTouchBarState(
+val touchbarState = rememberTouchbarState(
     enabled = duration >= 0L
 )
 TouchBar(
-    state = touchBarState,
+    state = touchbarState,
     modifier = Modifier.fillMathWidth()
 )
 // MediaUtils is available in the project app module.
@@ -50,8 +50,8 @@ LaunchEffect(uri) {
     MediaUtils.recycleNullableUseless(bitmaps, newBitmaps)
     bitmaps = newBitmaps
     if (bitmaps.size == thumbCount) {
-        touchBarState.background?.asAndroidBitmap()?.recycle()
-        touchBarState.notifyBackground(
+        touchbarState.background?.asAndroidBitmap()?.recycle()
+        touchbarState.notifyBackground(
             MediaUtils.merge(bitmaps, Orientation.Horizontal)?.asImageBitmap()
         )
     }
