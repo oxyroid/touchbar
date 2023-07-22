@@ -80,4 +80,4 @@ DisposableEffect(Unit) {
 [Video Editor](app/src/main/java/com/oxy/mmr/feature/touchbar/TouchBarScreen.kt)
 
 
-https://github.com/realOxy/touchbar/assets/70512220/d7c7d32c-a0b0-4512-8460-7b3fcb86b3f8
+https://github.com/realOxy/touchbar/assets/70512220/35be7389-e5c0-4cf7-9a3f-2df0b348b5ee
