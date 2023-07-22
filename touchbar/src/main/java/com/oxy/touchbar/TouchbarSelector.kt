@@ -16,23 +16,36 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import com.oxy.touchbar.locals.LocalInfos
+import kotlin.math.roundToInt
 
 @Composable
 internal fun TouchbarSelector(
     state: TouchbarState,
-    handleRadius: Float,
     modifier: Modifier = Modifier,
-    verticalHandle: Float = TouchbarDefaults.VerticalHandle,
-    activeVerticalHandle: Float = TouchbarDefaults.ActiveVerticalHandle,
-    handleInset: Float = TouchbarDefaults.HandleInset,
-    activeHandleInset: Float = TouchbarDefaults.ActiveHandleInset,
-    edgeColor: Color = TouchbarDefaults.EdgeColor,
-    activeEdgeColor: Color = TouchbarDefaults.ActiveEdgeColor
 ) {
+    val infos = LocalInfos.current
     val feedback = LocalHapticFeedback.current
+
+    val handleRadius: Float = infos.handleRadius
+    val verticalHandle: Float = infos.verticalHandle
+    val activeVerticalHandle: Float = infos.activeVerticalHandle
+    val handleInset: Float = infos.handleInset
+    val activeHandleInset: Float = infos.activeHandleInset
+    val horizontalHandle: Float = infos.horizontalHandle
+    val edgeColor: Color = infos.edgeColor
+    val activeEdgeColor: Color = infos.activeEdgeColor
+    val indicatorColor: Color = infos.indicatorColor
+    val activeIndicatorColor: Color = infos.activeIndicatorColor
+
     val color by animateColorAsState(
         if (state.enabled && (state.isXFocus || state.isYFocus)) activeEdgeColor
         else edgeColor,
+        tween(400)
+    )
+    val zColor by animateColorAsState(
+        if (state.enabled && state.isZFocus) activeIndicatorColor
+        else indicatorColor,
         tween(400)
     )
     val xHandleInset by animateFloatAsState(
@@ -48,14 +61,26 @@ internal fun TouchbarSelector(
     val yHandle by animateFloatAsState(
         if (state.isYFocus) activeVerticalHandle else verticalHandle
     )
+
+    val zHandlePresent by animateFloatAsState(
+        if (state.isZFocus) 0.85f else 0.65f
+    )
+
     LaunchedEffect(state.isXFocus, state.isYFocus) {
         if (state.isXFocus || state.isYFocus) {
             feedback.performHapticFeedback(HapticFeedbackType.LongPress)
         }
     }
+    LaunchedEffect((state.z * 100).roundToInt()) {
+        if (state.isZFocus) feedback.performHapticFeedback(HapticFeedbackType.LongPress)
+    }
     Canvas(
         modifier = modifier.fillMaxSize()
     ) {
+        val bottomPadding = when {
+            infos.enableZHandle -> this.size.height * infos.bottomPaddingPresent
+            else -> 0f
+        }
         // x panel v
         drawRoundRect(
             color = color,
@@ -64,7 +89,8 @@ internal fun TouchbarSelector(
                 y = 0f
             ),
             size = this.size.copy(
-                width = xHandle
+                width = xHandle,
+                height = this.size.height - bottomPadding
             ),
             cornerRadius = CornerRadius(handleRadius)
         )
@@ -73,11 +99,11 @@ internal fun TouchbarSelector(
             color = Color.Transparent,
             start = Offset(
                 x = state.x * this.size.width,
-                y = this.size.height * 0.25f
+                y = this.size.height * 0.25f - bottomPadding / 2
             ),
             end = Offset(
                 x = state.x * this.size.width,
-                y = this.size.height * 0.75f
+                y = this.size.height * 0.75f - bottomPadding / 2
             ),
             cap = StrokeCap.Round,
             strokeWidth = xHandleInset,
@@ -91,7 +117,8 @@ internal fun TouchbarSelector(
                 y = 0f
             ),
             size = this.size.copy(
-                width = yHandle
+                width = yHandle,
+                height = this.size.height - bottomPadding
             ),
             cornerRadius = CornerRadius(handleRadius)
         )
@@ -100,17 +127,17 @@ internal fun TouchbarSelector(
             color = Color.Transparent,
             start = Offset(
                 x = state.y * this.size.width,
-                y = this.size.height * 0.25f
+                y = this.size.height * 0.25f - bottomPadding / 2
             ),
             end = Offset(
                 x = state.y * this.size.width,
-                y = this.size.height * 0.75f
+                y = this.size.height * 0.75f - bottomPadding / 2
             ),
             cap = StrokeCap.Round,
             strokeWidth = yHandleInset,
             blendMode = BlendMode.Clear
         )
-        // x1
+        // h1
         drawRoundRect(
             color = color,
             topLeft = Offset(
@@ -119,22 +146,34 @@ internal fun TouchbarSelector(
             ),
             size = this.size.copy(
                 width = this.size.width * (state.y - state.x),
-                height = TouchbarDefaults.HorizontalHandle
+                height = horizontalHandle
             ),
             cornerRadius = CornerRadius(handleRadius)
         )
-        // x2
+        // h2
         drawRoundRect(
             color = color,
             topLeft = Offset(
                 x = state.x * this.size.width,
-                y = this.size.height - TouchbarDefaults.HorizontalHandle
+                y = this.size.height - horizontalHandle - bottomPadding
             ),
             size = this.size.copy(
                 width = this.size.width * (state.y - state.x),
-                height = TouchbarDefaults.HorizontalHandle
+                height = horizontalHandle
             ),
             cornerRadius = CornerRadius(handleRadius)
         )
+
+        if (infos.enableZHandle) {
+            // z panel v
+            drawCircle(
+                color = zColor,
+                radius = (bottomPadding / 2) * zHandlePresent,
+                center = Offset(
+                    x = state.z * this.size.width,
+                    y = this.size.height * (1 - infos.bottomPaddingPresent / 2)
+                )
+            )
+        }
     }
 }

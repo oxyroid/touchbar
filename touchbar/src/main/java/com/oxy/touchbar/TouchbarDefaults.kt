@@ -11,6 +11,9 @@ object TouchbarDefaults {
     val EdgeColor = Color.White
     val ActiveEdgeColor = Color(0xffffc773)
 
+    val IndicatorColor = Color.White
+    val ActiveIndicatorColor = Color(0xffffc773)
+
     const val VerticalHandle = 48f
     const val ActiveVerticalHandle = 64f
 

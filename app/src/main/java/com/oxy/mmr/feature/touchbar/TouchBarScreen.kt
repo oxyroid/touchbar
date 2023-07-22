@@ -104,16 +104,21 @@ internal fun TouchBarScreen(
 
     var currentX: Int by remember { mutableStateOf(-1) }
     var currentY: Int by remember { mutableStateOf(-1) }
+    var currentZ: Int by remember { mutableStateOf(-1) }
 
     val bitmap by produceState<Bitmap?>(
         null,
         bitmaps,
         currentX,
         currentY,
+        currentZ,
+        touchBarState.isXFocus,
         touchBarState.isYFocus
     ) {
         value = bitmaps.getOrNull(
-            if (!touchBarState.isYFocus) currentX else currentY
+            if (touchBarState.isYFocus) currentY
+            else if (touchBarState.isXFocus) currentX
+            else currentZ
         )
     }
 
@@ -188,6 +193,7 @@ internal fun TouchBarScreen(
 
         Touchbar(
             state = touchBarState,
+            enableZHandle = true,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
@@ -200,6 +206,10 @@ internal fun TouchBarScreen(
         LaunchedEffect(touchBarState.y) {
             val target = (touchBarState.y * thumbCount).roundToInt()
             if (currentY != target) currentY = target
+        }
+        LaunchedEffect(touchBarState.z) {
+            val target = (touchBarState.z * thumbCount).roundToInt()
+            if (currentZ != target) currentZ = target
         }
     }
 }

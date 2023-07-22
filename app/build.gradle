@@ -38,7 +38,7 @@ android {
         compose true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion "1.4.3"
+        kotlinCompilerExtensionVersion "1.5.0"
     }
     packagingOptions {
         resources {
@@ -51,12 +51,13 @@ dependencies {
     implementation "androidx.core:core-ktx:1.10.1"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.6.1"
     implementation "androidx.activity:activity-compose:1.7.2"
-    implementation platform("androidx.compose:compose-bom:2022.10.00")
-    implementation "androidx.compose.ui:ui"
-    implementation "androidx.compose.ui:ui-graphics"
-    implementation "androidx.compose.ui:ui-tooling-preview"
-    implementation "androidx.compose.material3:material3"
+
+    implementation "androidx.compose.animation:animation:1.4.3"
+    implementation "androidx.compose.foundation:foundation:1.4.3"
+    implementation "androidx.compose.material:material:1.4.3"
+    implementation "androidx.compose.material3:material3:1.1.1"
+    implementation "androidx.compose.runtime:runtime:1.4.3"
+    implementation "androidx.compose.ui:ui:1.4.3"
 
      implementation project(":touchbar")
-//    implementation "com.github.realOxy:touchbar:1.3"
 }
