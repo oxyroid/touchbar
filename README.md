@@ -37,6 +37,7 @@ val touchbarState = rememberTouchbarState(
 )
 TouchBar(
     state = touchbarState,
+    // enableZHandle = true,
     modifier = Modifier.fillMathWidth()
 )
 // MediaUtils is available in the project app module.
@@ -67,17 +68,19 @@ DisposableEffect(Unit) {
 ```
 
 # TouchBarState
+
 - `enabled: Boolean` handles is enabled.
 - `x: Float` left handle percentage(0f ~ 1f allowed).
 - `y: Float` right handle percentage(0f ~ 1f allowed).
+- `z: Float` mid handle percentage(0f ~ 1f allowed).
 - `isXFocus: Boolean` is left handle is pressing.
 - `isYFocus: Boolean` is right handle is pressing.
-- `notify()` change x, y, isXFocus or isYFocus.
+- `isZFocus: Boolean` is mid handle is pressing.
+- `notify()` change x, y, z, isXFocus, isYFocus or isZFocus.
 - `notifyBackground()` change background bitmap.
 
 # Demo
 
 [Video Editor](app/src/main/java/com/oxy/mmr/feature/touchbar/TouchBarScreen.kt)
-
 
 https://github.com/realOxy/touchbar/assets/70512220/d7c7d32c-a0b0-4512-8460-7b3fcb86b3f8

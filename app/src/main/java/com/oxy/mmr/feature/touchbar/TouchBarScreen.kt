@@ -16,8 +16,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -26,6 +28,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -59,6 +62,8 @@ internal fun TouchBarScreen(
     var duration by remember { mutableStateOf(-1L) }
     val context = LocalContext.current
     var uri: Uri? by remember { mutableStateOf(null) }
+
+    var enableZHandle by remember { mutableStateOf(false) }
 
     val touchBarState = rememberTouchbarState(
         enabled = duration >= 0L
@@ -108,6 +113,7 @@ internal fun TouchBarScreen(
 
     val bitmap by produceState<Bitmap?>(
         null,
+        enableZHandle,
         bitmaps,
         currentX,
         currentY,
@@ -116,9 +122,14 @@ internal fun TouchBarScreen(
         touchBarState.isYFocus
     ) {
         value = bitmaps.getOrNull(
-            if (touchBarState.isYFocus) currentY
-            else if (touchBarState.isXFocus) currentX
-            else currentZ
+            if (enableZHandle) {
+                if (touchBarState.isYFocus) currentY
+                else if (touchBarState.isXFocus) currentX
+                else currentZ
+            } else {
+                if (touchBarState.isYFocus) currentY
+                else currentX
+            }
         )
     }
 
@@ -139,11 +150,10 @@ internal fun TouchBarScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(vertical = 16.dp)
             .then(modifier)
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 16.dp)
+            modifier = Modifier.padding(16.dp)
         ) {
             Spacer(modifier = Modifier.weight(1f))
             ClickableText(
@@ -193,11 +203,27 @@ internal fun TouchBarScreen(
 
         Touchbar(
             state = touchBarState,
-            enableZHandle = true,
+            enableZHandle = enableZHandle,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
         )
+
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .align(Alignment.End),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Checkbox(
+                checked = enableZHandle,
+                onCheckedChange = { enableZHandle = it }
+            )
+            Text(
+                text = "Z-HANDLE",
+                fontSize = 10.sp,
+            )
+        }
 
         LaunchedEffect(touchBarState.x) {
             val target = (touchBarState.x * thumbCount).roundToInt()

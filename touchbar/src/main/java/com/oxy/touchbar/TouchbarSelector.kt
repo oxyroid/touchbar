@@ -99,11 +99,11 @@ internal fun TouchbarSelector(
             color = Color.Transparent,
             start = Offset(
                 x = state.x * this.size.width,
-                y = this.size.height * 0.25f - bottomPadding / 2
+                y = (this.size.height - bottomPadding) * 0.25f
             ),
             end = Offset(
                 x = state.x * this.size.width,
-                y = this.size.height * 0.75f - bottomPadding / 2
+                y = (this.size.height - bottomPadding) * 0.75f
             ),
             cap = StrokeCap.Round,
             strokeWidth = xHandleInset,
@@ -127,11 +127,11 @@ internal fun TouchbarSelector(
             color = Color.Transparent,
             start = Offset(
                 x = state.y * this.size.width,
-                y = this.size.height * 0.25f - bottomPadding / 2
+                y = (this.size.height - bottomPadding) * 0.25f
             ),
             end = Offset(
                 x = state.y * this.size.width,
-                y = this.size.height * 0.75f - bottomPadding / 2
+                y = (this.size.height - bottomPadding) * 0.75f
             ),
             cap = StrokeCap.Round,
             strokeWidth = yHandleInset,
