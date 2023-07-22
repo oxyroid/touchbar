@@ -72,7 +72,7 @@ internal fun TouchbarSelector(
         }
     }
     LaunchedEffect((state.z * 100).roundToInt()) {
-        if (state.isZFocus) feedback.performHapticFeedback(HapticFeedbackType.LongPress)
+        if (state.isZFocus) feedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
     }
     Canvas(
         modifier = modifier.fillMaxSize()

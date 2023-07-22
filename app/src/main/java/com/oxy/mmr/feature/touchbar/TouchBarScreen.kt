@@ -123,7 +123,8 @@ internal fun TouchBarScreen(
     ) {
         value = bitmaps.getOrNull(
             if (enableZHandle) {
-                if (touchBarState.isYFocus) currentY
+                if (touchBarState.isYFocus && touchBarState.isXFocus) currentZ
+                else if (touchBarState.isYFocus) currentY
                 else if (touchBarState.isXFocus) currentX
                 else currentZ
             } else {
