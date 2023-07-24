@@ -4,7 +4,6 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.oxy.mmr.feature.album.AlbumScreen
 import com.oxy.mmr.feature.touchbar.TouchBarScreen
+import com.oxy.mmr.ui.Background
 
 sealed class Destination {
     object Home : Destination()
@@ -60,14 +60,22 @@ fun App(
             enter = slideInHorizontally { it },
             exit = slideOutHorizontally { it }
         ) {
-            AlbumScreen()
+            Background {
+                AlbumScreen(
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
         }
         AnimatedVisibility(
             visible = destination == Destination.TouchBar,
             enter = slideInHorizontally { it },
             exit = slideOutHorizontally { it }
         ) {
-            TouchBarScreen()
+            Background {
+                TouchBarScreen(
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
         }
     }
 

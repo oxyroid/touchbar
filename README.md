@@ -85,3 +85,17 @@ DisposableEffect(Unit) {
 
 
 https://github.com/realOxy/touchbar/assets/70512220/35be7389-e5c0-4cf7-9a3f-2df0b348b5ee
+
+
+# Use Same Compose Version
+
+```groovy
+dependencies {
+    implementation "androidx.compose.animation:animation:1.4.3"
+    implementation "androidx.compose.foundation:foundation:1.4.3"
+    implementation "androidx.compose.material:material:1.4.3"
+    implementation "androidx.compose.material3:material3:1.1.1"
+    implementation "androidx.compose.runtime:runtime:1.4.3"
+    implementation "androidx.compose.ui:ui:1.4.3"
+}
+```
