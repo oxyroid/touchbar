@@ -1,6 +1,6 @@
 # Compose TouchBar
 
-Touchbar is a Video Clipper component made by Jetpack Compose.
+TouchBar is a Video Clipper component made by Jetpack Compose.
 
 (control the clipper handles and display video thumbnails only)
 
@@ -86,16 +86,9 @@ DisposableEffect(Unit) {
 
 https://github.com/realOxy/touchbar/assets/70512220/35be7389-e5c0-4cf7-9a3f-2df0b348b5ee
 
+# Versions
 
-# Use Same Compose Version
-
-```groovy
-dependencies {
-    implementation "androidx.compose.animation:animation:1.4.3"
-    implementation "androidx.compose.foundation:foundation:1.4.3"
-    implementation "androidx.compose.material:material:1.4.3"
-    implementation "androidx.compose.material3:material3:1.1.1"
-    implementation "androidx.compose.runtime:runtime:1.4.3"
-    implementation "androidx.compose.ui:ui:1.4.3"
-}
-```
+- Kotlin 1.9.0
+- Jetpack Compose 1.4.3
+- Jetpack Compose Material3 1.1.1
+- Compose Kotlin Compiler Extension 1.5.0
