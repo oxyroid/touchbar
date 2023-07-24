@@ -1,6 +1,6 @@
 # Compose TouchBar
 
-TouchBar is a Video Clipper component made by Jetpack Compose.
+Touchbar is a Video Clipper component made by Jetpack Compose.
 
 (control the clipper handles and display video thumbnails only)
 
