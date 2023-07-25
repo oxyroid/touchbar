@@ -4,6 +4,8 @@ TouchBar is a Video Clipper component made by Jetpack Compose.
 
 (control the clipper handles and display video thumbnails only)
 
+[![API](https://img.shields.io/badge/API-21%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=21)
+
 [![](https://jitpack.io/v/realOxy/touchbar.svg)](https://jitpack.io/#realOxy/touchbar)
 
 # Installation
